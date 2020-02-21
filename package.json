@@ -5,7 +5,11 @@
   "scripts": {
     "webpack": "webpack  --config webpack.config.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@types/url-join": "^4.0.0",
+    "query-string": "^6.11.0",
+    "url-join": "^4.0.1"
+  },
   "devDependencies": {
     "@types/nodemailer": "^6.4.0",
     "@cloudflare/workers-types": "^1.0.6",

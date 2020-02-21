@@ -1,36 +1,31 @@
-import checkIfJson from "./utils/checkIfJson";
-import objectToQueryString from "./utils/objectToQueryString";
-import parseHeaders from "./utils/parseHeaders";
-import parseParams from "./utils/parseParams";
-
-const fwdUrlKey = "fwdUrl";
+import urlJoin from "url-join";
+const fwdUrlKey = "x-forward-url";
 
 const fetchResponse = async (url: string, { headers, method, body }: RequestInit): Promise<Response> => {
     return fetch(url, { method, headers, body });
 };
 
 export async function handleRequest(request: Request): Promise<Response> {
-    //get the url from query params
-    const parsedParams = parseParams(request.url, fwdUrlKey);
-    //gte the headers
-    // const parsedHeaders = parseHeaders(request.headers);
-    //get request body
+    //parse params
+    const params = request.url.split("?")[1];
+    // get path
+    const path = new URL(request.url).pathname;
+    //add path to fwdUrl and get final url
+    const fwdUrl = request.headers.get(fwdUrlKey);
+    const finalFwdUrl = urlJoin(fwdUrl, path) + `?${params}`;
+    //check if post method, if yes, append body to new request
     const requestBody = request.method.toLocaleLowerCase() === "post" ? await request.text() : undefined;
-    //fetch the request
-    //handle fwdUrl Missing param
-    const fwdResponse = await fetchResponse(parsedParams.fwdUrl + "?" + objectToQueryString(parsedParams.params), {
+    //fwd whole header to new request
+    const fwdResponse = await fetchResponse(finalFwdUrl, {
         headers: request.headers,
-        method: request.method,
         body: requestBody,
+        method: request.method.toUpperCase(),
     });
+
     const fwdBody = await fwdResponse.text();
-    const fwdHeaders = parseHeaders(fwdResponse.headers);
 
     return new Response(fwdBody, {
         status: 200,
-        headers: {
-            ...fwdHeaders,
-            "content-type": checkIfJson(fwdBody) ? "application/json" : "text/html;charset=UTF-8",
-        },
+        headers: fwdResponse.headers,
     });
 }

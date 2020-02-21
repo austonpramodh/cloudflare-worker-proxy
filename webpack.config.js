@@ -12,7 +12,7 @@ const parseENV = () => {
     return env;
 };
 
-const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
+// const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 
 module.exports = {
     target: "webworker",
@@ -40,11 +40,11 @@ module.exports = {
     },
     plugins: [
         new webpack.DefinePlugin({ "process.env": parseENV() }),
-        new ForkTsCheckerWebpackPlugin({
-            eslint: true,
-            eslintOptions: {
-                cache: false,
-            },
-        }),
+        // new ForkTsCheckerWebpackPlugin({
+        //     eslint: true,
+        //     eslintOptions: {
+        //         cache: false,
+        //     },
+        // }),
     ],
 };
