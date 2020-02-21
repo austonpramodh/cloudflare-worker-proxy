@@ -1,19 +1,13 @@
 {
-  "name": "cloudflare-worker-typscript-boilerplate",
+  "name": "cloudflare-worker-proxy",
   "version": "1.0.0",
   "description": "Serverless boilerplate for cloudflare workers",
   "scripts": {
-    "deploy:prod": "cross-env NODE_ENV=production serverless deploy",
     "webpack": "webpack  --config webpack.config.js"
   },
-  "dependencies": {
-    "@types/nodemailer": "^6.4.0",
-    "aws-sdk": "^2.619.0",
-    "emailjs-smtp-client": "^2.0.1",
-    "nodemailer": "^6.4.2",
-    "typescript": "^3.8.2"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "@types/nodemailer": "^6.4.0",
     "@cloudflare/workers-types": "^1.0.6",
     "@types/node": "^13.7.1",
     "@typescript-eslint/eslint-plugin": "^2.19.2",
@@ -29,10 +23,8 @@
     "json-loader": "^0.5.7",
     "lint-staged": "^10.0.7",
     "prettier": "^1.19.1",
-    "serverless-cloudflare-workers": "^1.2.0",
-    "serverless-dotenv-plugin": "^2.3.2",
-    "serverless-webpack": "^5.2.0",
     "ts-loader": "^6.2.1",
+    "typescript": "^3.8.2",
     "webpack": "^4.41.6",
     "webpack-cli": "^3.3.11"
   },

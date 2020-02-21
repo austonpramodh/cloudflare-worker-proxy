@@ -12,7 +12,7 @@ const parseENV = () => {
     return env;
 };
 
-// const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 
 module.exports = {
     target: "webworker",
@@ -24,26 +24,13 @@ module.exports = {
         symlinks: false,
         cacheWithContext: false,
     },
-    // output: {
-    //     filename: "bundle.js",
-    //     path: path.join(__dirname, "dist"),
-    // },
-    externals: {
-        fetch: "cross-fetch",
-    },
     module: {
         rules: [
             // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
             {
                 test: /\.(tsx?)$/,
                 loader: "ts-loader",
-                exclude: [
-                    [
-                        path.resolve(__dirname, "node_modules"),
-                        path.resolve(__dirname, ".serverless"),
-                        path.resolve(__dirname, "dist"),
-                    ],
-                ],
+                exclude: [[path.resolve(__dirname, "node_modules"), path.resolve(__dirname, "dist")]],
                 options: {
                     transpileOnly: true,
                     experimentalWatchApi: true,
@@ -53,11 +40,11 @@ module.exports = {
     },
     plugins: [
         new webpack.DefinePlugin({ "process.env": parseENV() }),
-        // new ForkTsCheckerWebpackPlugin({
-        //     eslint: true,
-        //     eslintOptions: {
-        //         cache: false,
-        //     },
-        // }),
+        new ForkTsCheckerWebpackPlugin({
+            eslint: true,
+            eslintOptions: {
+                cache: false,
+            },
+        }),
     ],
 };
