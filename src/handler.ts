@@ -6,6 +6,7 @@ const fwdUrlKey = process.env.FORWARD_URL_KEY;
 const setCookieKey = "Set-Cookie";
 const cookieMaxAge = process.env.COOKIE_MAX_AGE;
 const defaultProxyUrl = process.env.DEFAULT_PROXY_URL;
+const isForwardedHeaderIndicatorKey = process.env.IS_FORWARDED_INDICATOR_KEY;
 
 const fetchResponse = async (url: string, { headers, method, body }: RequestInit): Promise<Response> => {
     return fetch(url, { method, headers, body });
@@ -37,7 +38,9 @@ export async function handleRequest(request: Request): Promise<Response> {
         const finalFwdUrl = urlJoin(fwdUrl, path) + `?${params}`;
 
         //check if post method, if yes, append body to new request
-        const requestBody = request.method.toLocaleLowerCase() === "post" ? request.body : undefined;
+        const requestMethod = request.method.toLocaleLowerCase();
+        const requestBody =
+            requestMethod === "post" || requestMethod === "put" || requestMethod === "patch" ? request.body : undefined;
 
         //fwd whole header to new request and get the response
         const fwdResponse = await fetchResponse(finalFwdUrl, {
@@ -49,6 +52,8 @@ export async function handleRequest(request: Request): Promise<Response> {
         const mutableFwdResponse = new Response(fwdResponse.body, fwdResponse);
         //set the cookie so that subsequent requests get forwarded to same url
         mutableFwdResponse.headers.set(setCookieKey, `${fwdUrlKey}=${fwdUrl}; Max-Age=${cookieMaxAge}`);
+        //set a header to indicate that the request is forwarded
+        mutableFwdResponse.headers.set(isForwardedHeaderIndicatorKey, "true");
         //return the whole response obtained
         return mutableFwdResponse;
     } catch (error) {
