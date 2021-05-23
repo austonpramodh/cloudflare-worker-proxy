@@ -6,7 +6,9 @@ const fwdUrlKey = process.env.FORWARD_URL_KEY;
 const setCookieKey = "Set-Cookie";
 const cookieMaxAge = process.env.COOKIE_MAX_AGE;
 const defaultProxyUrl = process.env.DEFAULT_PROXY_URL;
-const isForwardedHeaderIndicatorKey = process.env.IS_FORWARDED_INDICATOR_KEY;
+const noCookieKey = process.env.NO_COOKIE_KEY;
+const resetCookieKey = process.env.RESET_COOKIE_KEY;
+const forwardedUrlIndicatorKey = process.env.FORWARDED_URL_INDICATOR_KEY;
 
 const fetchResponse = async (url: string, { headers, method, body }: RequestInit): Promise<Response> => {
     return fetch(url, { method, headers, body });
@@ -14,16 +16,18 @@ const fetchResponse = async (url: string, { headers, method, body }: RequestInit
 
 export async function handleRequest(request: Request): Promise<Response> {
     try {
+        //check if cookie reset needed
+        const cookieResetNeeded =
+            request.headers.get(resetCookieKey) === "true" || parseUrl(request.url).query[resetCookieKey] === "true";
         //parse params
         //checking if undefined helps in avoiding addtion of undefined
         //key in params of newly forming url
         const params = request.url.split("?")[1] === undefined ? "" : request.url.split("?")[1];
         //get the x-forward-url
         let fwdUrl = request.headers.get(fwdUrlKey) || (parseUrl(request.url).query[fwdUrlKey] as string);
-
         //check if x-forward-url is present, if not check for cookie
         if (fwdUrl === undefined) {
-            const fwdCookieUrl = getCookie(request, fwdUrlKey);
+            const fwdCookieUrl = cookieResetNeeded ? undefined : getCookie(request, fwdUrlKey);
             fwdUrl = fwdCookieUrl || defaultProxyUrl;
             // throw { errCode: 4001, errMsg: "ooops, you forgot to use x-forward-url for forwarding the request..." };
         } else {
@@ -51,9 +55,19 @@ export async function handleRequest(request: Request): Promise<Response> {
         // Make the headers mutable by re-constructing the Response.
         const mutableFwdResponse = new Response(fwdResponse.body, fwdResponse);
         //set the cookie so that subsequent requests get forwarded to same url
-        mutableFwdResponse.headers.set(setCookieKey, `${fwdUrlKey}=${fwdUrl}; Max-Age=${cookieMaxAge}`);
+        if (cookieResetNeeded) {
+            const expiryDate = new Date(Number(new Date()) - 500000);
+            mutableFwdResponse.headers.set(setCookieKey, `${fwdUrlKey}=${fwdUrl}; Expires=${expiryDate}`);
+        } else {
+            //check if setting cookie is not needed
+            const noCookieNeeded =
+                request.headers.get(noCookieKey) === "true" || parseUrl(request.url).query[noCookieKey] === "true";
+
+            if (noCookieNeeded != true)
+                mutableFwdResponse.headers.set(setCookieKey, `${fwdUrlKey}=${fwdUrl}; Max-Age=${cookieMaxAge}`);
+        }
         //set a header to indicate that the request is forwarded
-        mutableFwdResponse.headers.set(isForwardedHeaderIndicatorKey, "true");
+        mutableFwdResponse.headers.set(forwardedUrlIndicatorKey, finalFwdUrl);
         //return the whole response obtained
         return mutableFwdResponse;
     } catch (error) {
