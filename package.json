@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Serverless boilerplate for cloudflare workers",
   "scripts": {
-    "webpack": "webpack  --config webpack.config.js"
+    "webpack": "webpack  --config webpack.config.js",
+    "dev": "wrangler dev",
+    "deploy:prod": "wrangler publish -e production"
   },
   "dependencies": {
     "@types/is-url": "^1.2.28",
