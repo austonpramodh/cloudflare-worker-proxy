@@ -1,9 +1,10 @@
+name = "cloudflare-proxy-typescript"
 type = "webpack"
 account_id = ""
 workers_dev = true
 webpack_config = "webpack.config.js"
 
 [env.production]
-workers_dev = false
+workers_dev = true
 route = "https://mydomain.com/*"
 zone_id = ""
