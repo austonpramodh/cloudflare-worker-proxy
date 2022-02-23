@@ -6,6 +6,9 @@ const dotenv = require("dotenv");
 const parseENV = () => {
     const loadedEnv = dotenv.config().parsed;
     const env = {};
+    if (loadedEnv === undefined) {
+        throw new Error(".env file missing!!");
+    }
     Object.keys(loadedEnv).forEach((eachEnvKey) => {
         env[eachEnvKey] = JSON.stringify(loadedEnv[eachEnvKey]);
     });
