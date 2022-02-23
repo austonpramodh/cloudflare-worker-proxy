@@ -7,5 +7,5 @@ compatibility_date = "2022-02-23"
 
 [env.production]
 workers_dev = true
-route = "https://mydomain.com/*"
-zone_id = ""
+route = "https://auston.dev/*"
+zone_id = "1bc507a81a4fd53bb0327976ab1bc09f"
